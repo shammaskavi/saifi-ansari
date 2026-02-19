@@ -15,13 +15,15 @@ interface ItemForm {
   product_category: 'Saree' | 'Garment';
   product_type: string;
   services: string[];
-  quantity: number;
-  rate: number;
+  quantity: number | '';
+  rate: number | '';
 }
 
 const PRODUCT_TYPES = {
-  Saree: ['Chiffon', 'Silk', 'Georgette', 'Cotton', 'Net', 'Banarasi', 'Other'],
-  Garment: ['Shirt', 'Suit', 'Lehenga', 'Kurta', 'Dupatta', 'Blouse', 'Other'],
+
+  Saree: ['Silk', 'Cotton', 'Banarasi', 'South Silk', 'Rajkot Patola', 'Other'],
+  Garment: ['Shirt', 'Pant', 'Blazer', 'Blouse', 'Lehenga', 'Woolen', 'Top', 'Kurta', 'Salwar', 'Dupatta', 'Gown', 'Jacket', 'Other'],
+
 };
 
 const SERVICES = ['Wash/Press', 'Polish', 'Tassel', 'Fall-Beading', 'Net', 'Dry-Cleaning', 'Other'];
@@ -63,12 +65,12 @@ const CreateInvoice: React.FC = () => {
   const [orderType, setOrderType] = useState<'Normal' | 'Urgent'>('Normal');
   const [notes, setNotes] = useState('');
   const [items, setItems] = useState<ItemForm[]>([
-    { product_category: 'Saree', product_type: '', services: [], quantity: 1, rate: 0 },
+    { product_category: 'Saree', product_type: '', services: [], quantity: '', rate: '' },
   ]);
   const [submitting, setSubmitting] = useState(false);
 
   const addItem = () => {
-    setItems([...items, { product_category: 'Saree', product_type: '', services: [], quantity: 1, rate: 0 }]);
+    setItems([...items, { product_category: 'Saree', product_type: '', services: [], quantity: '', rate: '' }]);
   };
 
   const removeItem = (idx: number) => {
@@ -85,12 +87,23 @@ const CreateInvoice: React.FC = () => {
     setItems(updated);
   };
 
-  const totalPieces = items.reduce((s, i) => s + i.quantity, 0);
-  const totalAmount = items.reduce((s, i) => s + i.quantity * i.rate, 0);
+  const totalPieces = items.reduce((s, i) => s + (Number(i.quantity) || 0), 0);
+  const totalAmount = items.reduce((s, i) => s + (Number(i.quantity) || 0) * (Number(i.rate) || 0), 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedOutlet || !customerId || !deliveryDate || items.some(i => !i.product_type || i.services.length === 0)) {
+    if (
+      !selectedOutlet ||
+      !customerId ||
+      !deliveryDate ||
+      items.some(i =>
+        !i.product_type ||
+        i.services.length === 0 ||
+        !i.quantity ||
+        Number(i.quantity) <= 0 ||
+        (isAdmin && (i.rate === '' || Number(i.rate) < 0))
+      )
+    ) {
       toast({ title: 'Missing fields', description: 'Please fill all required fields', variant: 'destructive' });
       return;
     }
@@ -300,12 +313,24 @@ const CreateInvoice: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Qty</Label>
-                  <Input type="number" min={1} value={item.quantity} onChange={e => updateItem(idx, 'quantity', parseInt(e.target.value) || 1)} className="h-10" />
+                  <Input
+                    type="number"
+                    min={1}
+                    value={item.quantity ?? ''}
+                    onChange={e => updateItem(idx, 'quantity', e.target.value === '' ? '' : Number(e.target.value))}
+                    className="h-10"
+                  />
                 </div>
                 {isAdmin && (
                   <div className="space-y-1">
                     <Label className="text-xs">Rate (₹)</Label>
-                    <Input type="number" min={0} value={item.rate} onChange={e => updateItem(idx, 'rate', parseFloat(e.target.value) || 0)} className="h-10" />
+                    <Input
+                      type="number"
+                      min={0}
+                      value={item.rate ?? ''}
+                      onChange={e => updateItem(idx, 'rate', e.target.value === '' ? '' : Number(e.target.value))}
+                      className="h-10"
+                    />
                   </div>
                 )}
               </div>

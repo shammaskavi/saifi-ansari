@@ -21,9 +21,32 @@ const AddPayment: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    supabase.from('invoices').select('*').eq('id', id!).single().then(({ data }) => {
-      if (data) setInvoice(data as unknown as Invoice);
-    });
+    const loadInvoice = async () => {
+      const { data: invData } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('id', id!)
+        .single();
+
+      if (!invData) return;
+
+      // Fetch financial summary separately
+      const { data: financials } = await supabase
+        .from('invoice_financials')
+        .select('total_paid, total_due')
+        .eq('id', id!)
+        .single();
+
+      const mergedInvoice: any = {
+        ...invData,
+        amount_paid: financials?.total_paid ?? 0,
+        balance_amount: financials?.total_due ?? invData.total_amount,
+      };
+
+      setInvoice(mergedInvoice as Invoice);
+    };
+
+    loadInvoice();
   }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {

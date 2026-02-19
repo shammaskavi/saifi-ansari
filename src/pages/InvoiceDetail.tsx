@@ -151,7 +151,7 @@ const InvoiceDetail: React.FC = () => {
     if (!invoice) return;
     if (!invoice.customer_phone) return;
     const message = encodeURIComponent(
-      `Hello ${invoice.customer_name}, \n\nYour order from Banaras Dyeing Center is ready for pickup 😊\n\n📍 Address: 54 Alkapuri Arcade, Vadodara\n🕒 Shop Timings: 10:30am to 8:30pm, Monday to Saturday\n\nYou can collect it at your convenience during working hours.\n\nThank you for choosing Banaras Dyeing Center.`
+      `Hello ${invoice.customer_name}, \n\nYour order no.${invoice.invoice_number} from Banaras Dyeing Center is ready for pickup 😊\n\n📍 Address: 54 Alkapuri Arcade, Vadodara\n🕒 Shop Timings: 10:30am to 8:30pm, Monday to Saturday\n\nYou can collect it at your convenience during working hours.\n\nThank you for choosing Banaras Dyeing Center.`
     );
     const phone = invoice.customer_phone.replace(/[^0-9]/g, '');
     window.open(`https://wa.me/${phone.startsWith('91') ? phone : '91' + phone}?text=${message}`, '_blank');
