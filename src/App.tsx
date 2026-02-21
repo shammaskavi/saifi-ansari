@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import Setup from "./pages/Setup";
 import Customers from "./pages/Customers";
 import CustomerProfile from "./pages/CustomerProfile";
+import InvoicePrintPage from "./pages/InvoicePrintPage";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,8 @@ const App = () => (
               <Route path="/customers" element={<Customers />} />
               <Route path="/customers/:id" element={<CustomerProfile />} />
               <Route path="/invoices/:id/payment" element={<ProtectedRoute adminOnly><AddPayment /></ProtectedRoute>} />
+              <Route path="/invoices/:id/print" element={<InvoicePrintPage />} />
+
               <Route path="/reports" element={<ProtectedRoute adminOnly><Reports /></ProtectedRoute>} />
               <Route path="/reports" element={<ProtectedRoute adminOnly><Reports /></ProtectedRoute>} />
 

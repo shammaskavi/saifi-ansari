@@ -242,7 +242,12 @@ const PrintInvoice = forwardRef<HTMLDivElement, PrintInvoiceProps>(
 
         {/* Footer */}
         <div className="pi-footer">
-          <span>Monday to Saturday, 10:00 AM to 8:30 PM</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <span>Monday to Saturday, 10:00 AM to 8:30 PM</span>
+            <span>No deliveries will be handed out w/o the invoice.</span>
+            <span> We are not responsible for garments w/o bill</span>
+            <span>For oder pickup & enquires +91 84606 79330</span>
+          </div>
           <span className="thanks">THANK YOU</span>
         </div>
       </div>

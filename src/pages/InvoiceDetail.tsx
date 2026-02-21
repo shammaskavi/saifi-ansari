@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,7 +9,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, MessageCircle, Phone, MapPin, Calendar, Package, Printer, Save } from 'lucide-react';
 import type { Invoice, InvoiceItem, Payment } from '@/lib/types';
-import PrintInvoice from '@/components/PrintInvoice';
 
 const statusOrder = ['Received', 'In Process', 'Ready', 'Delivered'] as const;
 
@@ -31,7 +30,6 @@ const InvoiceDetail: React.FC = () => {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const printRef = useRef<HTMLDivElement>(null);
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -133,18 +131,8 @@ const InvoiceDetail: React.FC = () => {
   };
 
   const handlePrint = () => {
-    const el = printRef.current;
-    if (!el) return;
-
-    const clone = el.cloneNode(true) as HTMLElement;
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-
-    printWindow.document.write('<!DOCTYPE html><html><head><title>Invoice ' + (invoice?.invoice_number || '') + '</title></head><body style="margin:0;padding:0;"></body></html>');
-    printWindow.document.close();
-    printWindow.document.body.appendChild(printWindow.document.adoptNode(clone));
-    printWindow.focus();
-    setTimeout(() => { printWindow.print(); printWindow.close(); }, 400);
+    if (!invoice) return;
+    navigate(`/invoices/${invoice.id}/print`);
   };
 
   const sendWhatsAppReminder = () => {
@@ -331,10 +319,6 @@ const InvoiceDetail: React.FC = () => {
         )}
       </div>
 
-      {/* Print template - offscreen but rendered */}
-      <div style={{ position: 'absolute', left: '-9999px', top: 0, width: '148mm' }}>
-        <PrintInvoice ref={printRef} invoice={invoice} items={items} outlet={outlet} />
-      </div>
     </div>
   );
 };
