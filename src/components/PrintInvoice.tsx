@@ -15,7 +15,7 @@ interface PrintInvoiceProps {
 }
 
 const SERVICES_LIST = ['Dry-Cleaning', 'Tassel', 'Fall-Beding', 'Net', 'Polishing & more'];
-const MIN_ROWS = 8;
+const MIN_ROWS = 18;
 
 const PrintInvoice = forwardRef<HTMLDivElement, PrintInvoiceProps>(
   ({ invoice, items, outlet }, ref) => {
