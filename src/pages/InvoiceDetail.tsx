@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, MessageCircle, Phone, MapPin, Calendar, Package, Printer, Save } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Phone, MapPin, Calendar, Package, Printer, Save, Trash2 } from 'lucide-react';
 import type { Invoice, InvoiceItem, Payment } from '@/lib/types';
 
 const statusOrder = ['Received', 'In Process', 'Ready', 'Delivered'] as const;
@@ -135,6 +135,37 @@ const InvoiceDetail: React.FC = () => {
     navigate(`/invoices/${invoice.id}/print`);
   };
 
+  const handleDeleteInvoice = async () => {
+    if (!invoice || !isAdmin) return;
+
+    const confirmed = window.confirm(
+      'Delete this invoice?\n\nAll payments linked to this invoice will also be deleted. This action cannot be undone.'
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await supabase
+      .from('invoices')
+      .delete()
+      .eq('id', invoice.id);
+
+    if (error) {
+      toast({
+        title: 'Delete failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    toast({
+      title: 'Invoice deleted',
+      description: 'Invoice and related payments removed successfully.',
+    });
+
+    navigate('/invoices');
+  };
+
   const sendWhatsAppReminder = () => {
     if (!invoice) return;
     if (!invoice.customer_phone) return;
@@ -180,7 +211,11 @@ const InvoiceDetail: React.FC = () => {
           )}
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Calendar className="h-3.5 w-3.5" />
-            Delivery: {new Date(invoice.delivery_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+            Invoice Date: {new Date(invoice.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Calendar className="h-3.5 w-3.5" />
+            Delivery Date: {new Date(invoice.delivery_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
           </div>
         </CardContent>
       </Card>
@@ -309,12 +344,20 @@ const InvoiceDetail: React.FC = () => {
         <Button variant="outline" className="flex-1" onClick={sendWhatsAppReminder}>
           <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp
         </Button>
-        <Button variant="outline" className="flex-1" onClick={handlePrint}>
-          <Printer className="mr-2 h-4 w-4" /> Print
-        </Button>
+
         {isAdmin && (
           <Button className="flex-1" onClick={() => navigate(`/invoices/${id}/payment`)}>
             Add Payment
+          </Button>
+        )}
+
+        {isAdmin && (
+          <Button
+            variant="destructive"
+            className="flex-1"
+            onClick={handleDeleteInvoice}
+          >
+            <Trash2 className="mr-2 h-4 w-4" /> Delete
           </Button>
         )}
       </div>

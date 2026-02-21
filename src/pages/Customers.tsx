@@ -1,12 +1,13 @@
-
-
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Users, Phone, MapPin, ChevronRight } from 'lucide-react';
+import { Users, Phone, MapPin, ChevronRight, Pencil, Trash2 } from 'lucide-react';
+import CreateCustomerModal from '@/components/customers/CreateCustomerModal';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CustomerSummary {
     id: string;
@@ -19,16 +20,21 @@ interface CustomerSummary {
 }
 
 export default function Customers() {
+
     const navigate = useNavigate();
+    const { isAdmin, outletId } = useAuth();
 
     const [customers, setCustomers] = useState<CustomerSummary[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [showCustomerModal, setShowCustomerModal] = useState(false);
+    const [editingCustomer, setEditingCustomer] = useState<CustomerSummary | null>(null);
 
     useEffect(() => {
-        const fetchCustomers = async () => {
+        const loadInitialData = async () => {
             setLoading(true);
 
+            // Fetch customers
             const { data, error } = await supabase
                 .from('customer_financial_summary')
                 .select('*')
@@ -41,8 +47,29 @@ export default function Customers() {
             setLoading(false);
         };
 
-        fetchCustomers();
+        loadInitialData();
     }, []);
+
+    const handleDeleteCustomer = async (customerId: string) => {
+        if (!isAdmin) return;
+
+        const confirmDelete = window.confirm(
+            'Delete this customer? Customers with invoices cannot be deleted.'
+        );
+
+        if (!confirmDelete) return;
+
+        const { error } = await (supabase as any)
+            .from('customers')
+            .delete()
+            .eq('id', customerId);
+
+        if (!error) {
+            setCustomers(prev => prev.filter(c => c.id !== customerId));
+        } else {
+            alert('Unable to delete customer. They may have invoices.');
+        }
+    };
 
     const filteredCustomers = useMemo(() => {
         if (!search.trim()) return customers;
@@ -58,9 +85,11 @@ export default function Customers() {
     return (
         <div className="flex flex-col gap-4 p-4 pb-24">
             {/* Header */}
-            <div className="flex items-center gap-3">
-                <Users className="h-6 w-6 text-primary" />
-                <h1 className="text-xl font-semibold">Customers</h1>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <Users className="h-6 w-6 text-primary" />
+                    <h1 className="text-xl font-semibold">Customers</h1>
+                </div>
             </div>
 
             {/* Search */}
@@ -121,7 +150,34 @@ export default function Customers() {
                                             )}
                                         </div>
 
-                                        <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    setEditingCustomer(customer);
+                                                    setShowCustomerModal(true);
+                                                }}
+                                            >
+                                                <Pencil className="h-4 w-4" />
+                                            </Button>
+
+                                            {isAdmin && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={e => {
+                                                        e.stopPropagation();
+                                                        handleDeleteCustomer(customer.id);
+                                                    }}
+                                                >
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            )}
+
+                                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                                        </div>
                                     </div>
 
                                     {/* Financials */}
@@ -149,6 +205,36 @@ export default function Customers() {
                     })}
                 </div>
             )}
+
+            <CreateCustomerModal
+                open={showCustomerModal}
+                onOpenChange={setShowCustomerModal}
+                outletId={outletId}
+                customer={editingCustomer}
+                onCustomerSaved={(savedCustomer) => {
+                    setCustomers(prev => {
+                        const exists = prev.find(c => c.id === savedCustomer.id);
+
+                        if (exists) {
+                            return prev.map(c =>
+                                c.id === savedCustomer.id ? { ...c, ...savedCustomer } : c
+                            );
+                        }
+
+                        return [
+                            {
+                                ...savedCustomer,
+                                total_billed: 0,
+                                total_paid: 0,
+                                total_due: 0,
+                            },
+                            ...prev,
+                        ];
+                    });
+
+                    setEditingCustomer(null);
+                }}
+            />
         </div>
     );
 }

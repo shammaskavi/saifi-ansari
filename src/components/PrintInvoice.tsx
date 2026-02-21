@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import type { Invoice, InvoiceItem } from '@/lib/types';
-import logoDark from '@/assets/logo-dark.png';
+import logoLight from '@/assets/logo-light.png';
 
 interface Outlet {
   name: string;
@@ -15,7 +15,7 @@ interface PrintInvoiceProps {
 }
 
 const SERVICES_LIST = ['Dry-Cleaning', 'Tassel', 'Fall-Beding', 'Net', 'Polishing & more'];
-const MIN_ROWS = 18;
+const MIN_ROWS = 14;
 
 const PrintInvoice = forwardRef<HTMLDivElement, PrintInvoiceProps>(
   ({ invoice, items, outlet }, ref) => {
@@ -62,8 +62,8 @@ const PrintInvoice = forwardRef<HTMLDivElement, PrintInvoiceProps>(
             gap: 10px;
           }
           .pi-brand-logo {
-            width: 50px;
-            height: 50px;
+            width: 190px;
+            height: auto;
             object-fit: contain;
             border-radius: 4px;
           }
@@ -166,12 +166,12 @@ const PrintInvoice = forwardRef<HTMLDivElement, PrintInvoiceProps>(
         {/* Header */}
         <div className="pi-header">
           <div className="pi-brand">
-            <img src={logoDark} alt="Banaras Dyeing" className="pi-brand-logo" />
-            <div className="pi-brand-text">
+            <img src={logoLight} alt="Banaras Dyeing" className="pi-brand-logo" />
+            {/* <div className="pi-brand-text">
               <p className="pi-sub" style={{ letterSpacing: '1px' }}>banaras</p>
               <h1>Dyeing</h1>
               <p className="pi-sub">since 1964</p>
-            </div>
+            </div> */}
           </div>
           <div className="pi-services">
             {SERVICES_LIST.map(s => <div key={s}>{s}</div>)}

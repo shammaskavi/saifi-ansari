@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Phone } from 'lucide-react';
+import { Search, Plus, Phone, Calendar } from 'lucide-react';
 import type { Invoice } from '@/lib/types';
 
 const statusColors: Record<string, string> = {
@@ -145,6 +145,11 @@ const InvoiceList: React.FC = () => {
               <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                 <Phone className="h-3 w-3" />
                 {inv.customer_phone}
+              </div>
+              <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                <Calendar className="h-3 w-3" />
+                {new Date(inv.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+
               </div>
 
               <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">

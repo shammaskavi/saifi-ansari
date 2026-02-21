@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Trash2 } from 'lucide-react';
+import CreateCustomerModal from '@/components/customers/CreateCustomerModal';
 
 interface ItemForm {
   product_category: 'Saree' | 'Garment';
@@ -39,9 +40,6 @@ const CreateInvoice: React.FC = () => {
   const [customers, setCustomers] = useState<any[]>([]);
   const [customerSearch, setCustomerSearch] = useState('');
   const [showCreateCustomer, setShowCreateCustomer] = useState(false);
-  const [newCustomerName, setNewCustomerName] = useState('');
-  const [newCustomerPhone, setNewCustomerPhone] = useState('');
-  const [newCustomerAddress, setNewCustomerAddress] = useState('');
   React.useEffect(() => {
     const loadCustomers = async () => {
       const { data } = await (supabase as any)
@@ -208,7 +206,6 @@ const CreateInvoice: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      setNewCustomerName(customerSearch);
                       setShowCreateCustomer(true);
                     }}
                     className="w-full px-3 py-2 text-left text-primary hover:bg-muted"
@@ -366,75 +363,16 @@ const CreateInvoice: React.FC = () => {
         </div>
       </form>
 
-      <Dialog open={showCreateCustomer} onOpenChange={setShowCreateCustomer}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create Customer</DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <Label>Name</Label>
-              <Input
-                value={newCustomerName}
-                onChange={e => setNewCustomerName(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label>Phone</Label>
-              <Input
-                value={newCustomerPhone}
-                onChange={e => setNewCustomerPhone(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Address</Label>
-              <Textarea
-                value={newCustomerAddress}
-                onChange={e => setNewCustomerAddress(e.target.value)}
-                placeholder="Customer address"
-              />
-            </div>
-
-            <Button
-              onClick={async () => {
-                if (!effectiveOutletId) {
-                  toast({
-                    title: 'Outlet missing',
-                    description: 'Please select an outlet before creating a customer.',
-                    variant: 'destructive',
-                  });
-                  return;
-                }
-
-                const { data, error } = await supabase
-                  .from('customers')
-                  .insert({
-                    name: newCustomerName.trim(),
-                    phone: newCustomerPhone.trim(),
-                    address: newCustomerAddress.trim() || null,
-                    outlet_id: effectiveOutletId,
-                  })
-                  .select()
-                  .single();
-
-                if (!error && data) {
-                  setCustomers(prev => [...prev, data]);
-                  setCustomerId(data.id);
-                  setCustomerSearch(`${data.name} (${data.phone})`);
-                  setShowCreateCustomer(false);
-                  setNewCustomerName('');
-                  setNewCustomerPhone('');
-                  setNewCustomerAddress('');
-                }
-              }}
-            >
-              Create Customer
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <CreateCustomerModal
+        open={showCreateCustomer}
+        onOpenChange={setShowCreateCustomer}
+        outletId={effectiveOutletId}
+        onCustomerSaved={(customer) => {
+          setCustomers(prev => [...prev, customer]);
+          setCustomerId(customer.id);
+          setCustomerSearch(`${customer.name} (${customer.phone})`);
+        }}
+      />
     </div>
   );
 };
