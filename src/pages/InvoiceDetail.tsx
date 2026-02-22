@@ -37,7 +37,28 @@ const InvoiceDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [notesSaving, setNotesSaving] = useState(false);
-  const [notesEdited, setNotesEdited] = useState(false);
+const [notesEdited, setNotesEdited] = useState(false);
+
+// Master items status selector (UI only for now)
+const [masterStatus, setMasterStatus] = useState<string | null>(null);
+
+// Keep master status selector in sync with item states
+useEffect(() => {
+  if (!items.length) {
+    setMasterStatus(null);
+    return;
+  }
+
+  const uniqueStatuses = Array.from(new Set(items.map(i => i.status)));
+
+  // If all items share same status → reflect it in master toggle
+  if (uniqueStatuses.length === 1) {
+    setMasterStatus(uniqueStatuses[0]);
+  } else {
+    // Mixed statuses → show placeholder
+    setMasterStatus(null);
+  }
+}, [items]);
 
   useEffect(() => {
     if (id) fetchData();
@@ -111,6 +132,62 @@ const InvoiceDetail: React.FC = () => {
       await supabase.from('invoices').update({ invoice_status: invoiceStatus }).eq('id', id!);
       setInvoice(prev => prev ? { ...prev, invoice_status: invoiceStatus as any } : null);
     }
+  };
+
+  // Bulk update all item statuses
+  const updateAllItemsStatus = async (newStatus: string) => {
+    if (!invoice) return;
+
+    // Staff cannot mark Delivered unless all items are Ready
+    if (!isAdmin && newStatus === 'Delivered') {
+      const invalid = items.some(i => i.status !== 'Ready');
+      if (invalid) {
+        toast({
+          title: 'Not allowed',
+          description: 'All items must be Ready before marking Delivered',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
+    const { error } = await supabase
+      .from('invoice_items')
+      .update({ status: newStatus })
+      .eq('invoice_id', invoice.id);
+
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+
+    // Optimistically update UI
+    const updatedItems = items.map(i => ({ ...i, status: newStatus as any }));
+    setItems(updatedItems);
+
+    // Derive invoice status (same logic as single update)
+    const allDelivered = updatedItems.every(i => i.status === 'Delivered');
+    const someDelivered = updatedItems.some(i => i.status === 'Delivered');
+
+    const invoiceStatus = allDelivered
+      ? 'Delivered'
+      : someDelivered
+      ? 'Partial'
+      : 'Open';
+
+    await supabase
+      .from('invoices')
+      .update({ invoice_status: invoiceStatus })
+      .eq('id', invoice.id);
+
+    setInvoice(prev =>
+      prev ? { ...prev, invoice_status: invoiceStatus as any } : null
+    );
+
+    toast({
+      title: 'Updated',
+      description: `All items marked ${newStatus}`,
+    });
   };
 
   const saveDeliveryNotes = async () => {
@@ -244,10 +321,32 @@ const InvoiceDetail: React.FC = () => {
       )}
 
       {/* Items */}
-      <div>
-        <h3 className="mb-3 flex items-center gap-2 font-heading text-base font-semibold">
-          <Package className="h-4 w-4" /> Items ({invoice.total_pieces} pcs)
-        </h3>
+<div>
+  <div className="mb-3 flex items-center justify-between">
+    <h3 className="flex items-center gap-2 font-heading text-base font-semibold">
+      <Package className="h-4 w-4" /> Items ({invoice.total_pieces} pcs)
+    </h3>
+
+    {/* Master Status Toggle (UI only) */}
+    <Select
+      value={masterStatus ?? undefined}
+      onValueChange={(value) => {
+        setMasterStatus(value);
+        updateAllItemsStatus(value);
+      }}
+    >
+      <SelectTrigger className="h-8 w-32 text-xs">
+        <SelectValue placeholder="Set All" />
+      </SelectTrigger>
+      <SelectContent>
+        {statusOrder.map((s) => (
+          <SelectItem key={s} value={s}>
+            {s}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
         <div className="space-y-3">
           {items.map((item) => (
             <Card key={item.id}>
