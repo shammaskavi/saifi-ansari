@@ -132,7 +132,8 @@ const InvoiceDetail: React.FC = () => {
 
   const handlePrint = () => {
     if (!invoice) return;
-    navigate(`/invoices/${invoice.id}/print`);
+    // Mobile-safe printing
+    window.open(`/invoice-print/${invoice.id}`, '_blank');
   };
 
   const handleDeleteInvoice = async () => {

@@ -55,13 +55,22 @@ const App = () => (
               <Route path="/customers" element={<Customers />} />
               <Route path="/customers/:id" element={<CustomerProfile />} />
               <Route path="/invoices/:id/payment" element={<ProtectedRoute adminOnly><AddPayment /></ProtectedRoute>} />
-              <Route path="/invoices/:id/print" element={<InvoicePrintPage />} />
+              {/* <Route path="/invoices/:id/print" element={<InvoicePrintPage />} /> */}
 
-              <Route path="/reports" element={<ProtectedRoute adminOnly><Reports /></ProtectedRoute>} />
               <Route path="/reports" element={<ProtectedRoute adminOnly><Reports /></ProtectedRoute>} />
 
               <Route path="/users" element={<ProtectedRoute adminOnly><UserManagement /></ProtectedRoute>} />
             </Route>
+            {/* PRINT ROUTE — OUTSIDE APP LAYOUT */}
+            <Route
+              path="/invoice-print/:id"
+              element={
+                <ProtectedRoute>
+                  <InvoicePrintPage />
+                </ProtectedRoute>
+              }
+            />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
