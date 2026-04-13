@@ -318,18 +318,17 @@ const CreateInvoice: React.FC = () => {
                     className="h-10"
                   />
                 </div>
-                {isAdmin && (
-                  <div className="space-y-1">
-                    <Label className="text-xs">Rate (₹)</Label>
-                    <Input
-                      type="number"
-                      min={0}
-                      value={item.rate ?? ''}
-                      onChange={e => updateItem(idx, 'rate', e.target.value === '' ? '' : Number(e.target.value))}
-                      className="h-10"
-                    />
-                  </div>
-                )}
+
+                <div className="space-y-1">
+                  <Label className="text-xs">Rate (₹)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={item.rate ?? ''}
+                    onChange={e => updateItem(idx, 'rate', e.target.value === '' ? '' : Number(e.target.value))}
+                    className="h-10"
+                  />
+                </div>
               </div>
             </div>
           ))}

@@ -160,13 +160,12 @@ const InvoiceList: React.FC = () => {
                 )}
               </div>
 
-              {isAdmin && (
-                <div className="mt-1 flex justify-end">
-                  <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusColors[inv.payment_status]}`}>
-                    {inv.payment_status}
-                  </span>
-                </div>
-              )}
+
+              <div className="mt-1 flex justify-end">
+                <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusColors[inv.payment_status]}`}>
+                  {inv.payment_status}
+                </span>
+              </div>
             </button>
           ))}
         </div>

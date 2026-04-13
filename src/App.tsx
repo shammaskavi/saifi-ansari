@@ -54,7 +54,9 @@ const App = () => (
               <Route path="/invoices/:id" element={<InvoiceDetail />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/customers/:id" element={<CustomerProfile />} />
-              <Route path="/invoices/:id/payment" element={<ProtectedRoute adminOnly><AddPayment /></ProtectedRoute>} />
+              {/* <Route path="/invoices/:id/payment" element={<ProtectedRoute adminOnly><AddPayment /></ProtectedRoute>} /> */}
+              <Route path="/invoices/:id/payment" element={<AddPayment />} />
+
               {/* <Route path="/invoices/:id/print" element={<InvoicePrintPage />} /> */}
 
               <Route path="/reports" element={<ProtectedRoute adminOnly><Reports /></ProtectedRoute>} />

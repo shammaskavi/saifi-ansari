@@ -37,28 +37,28 @@ const InvoiceDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [notesSaving, setNotesSaving] = useState(false);
-const [notesEdited, setNotesEdited] = useState(false);
+  const [notesEdited, setNotesEdited] = useState(false);
 
-// Master items status selector (UI only for now)
-const [masterStatus, setMasterStatus] = useState<string | null>(null);
+  // Master items status selector (UI only for now)
+  const [masterStatus, setMasterStatus] = useState<string | null>(null);
 
-// Keep master status selector in sync with item states
-useEffect(() => {
-  if (!items.length) {
-    setMasterStatus(null);
-    return;
-  }
+  // Keep master status selector in sync with item states
+  useEffect(() => {
+    if (!items.length) {
+      setMasterStatus(null);
+      return;
+    }
 
-  const uniqueStatuses = Array.from(new Set(items.map(i => i.status)));
+    const uniqueStatuses = Array.from(new Set(items.map(i => i.status)));
 
-  // If all items share same status → reflect it in master toggle
-  if (uniqueStatuses.length === 1) {
-    setMasterStatus(uniqueStatuses[0]);
-  } else {
-    // Mixed statuses → show placeholder
-    setMasterStatus(null);
-  }
-}, [items]);
+    // If all items share same status → reflect it in master toggle
+    if (uniqueStatuses.length === 1) {
+      setMasterStatus(uniqueStatuses[0]);
+    } else {
+      // Mixed statuses → show placeholder
+      setMasterStatus(null);
+    }
+  }, [items]);
 
   useEffect(() => {
     if (id) fetchData();
@@ -172,8 +172,8 @@ useEffect(() => {
     const invoiceStatus = allDelivered
       ? 'Delivered'
       : someDelivered
-      ? 'Partial'
-      : 'Open';
+        ? 'Partial'
+        : 'Open';
 
     await supabase
       .from('invoices')
@@ -321,32 +321,32 @@ useEffect(() => {
       )}
 
       {/* Items */}
-<div>
-  <div className="mb-3 flex items-center justify-between">
-    <h3 className="flex items-center gap-2 font-heading text-base font-semibold">
-      <Package className="h-4 w-4" /> Items ({invoice.total_pieces} pcs)
-    </h3>
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="flex items-center gap-2 font-heading text-base font-semibold">
+            <Package className="h-4 w-4" /> Items ({invoice.total_pieces} pcs)
+          </h3>
 
-    {/* Master Status Toggle (UI only) */}
-    <Select
-      value={masterStatus ?? undefined}
-      onValueChange={(value) => {
-        setMasterStatus(value);
-        updateAllItemsStatus(value);
-      }}
-    >
-      <SelectTrigger className="h-8 w-32 text-xs">
-        <SelectValue placeholder="Set All" />
-      </SelectTrigger>
-      <SelectContent>
-        {statusOrder.map((s) => (
-          <SelectItem key={s} value={s}>
-            {s}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
+          {/* Master Status Toggle (UI only) */}
+          <Select
+            value={masterStatus ?? undefined}
+            onValueChange={(value) => {
+              setMasterStatus(value);
+              updateAllItemsStatus(value);
+            }}
+          >
+            <SelectTrigger className="h-8 w-32 text-xs">
+              <SelectValue placeholder="Set All" />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOrder.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="space-y-3">
           {items.map((item) => (
             <Card key={item.id}>
@@ -445,11 +445,11 @@ useEffect(() => {
           <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp
         </Button>
 
-        {isAdmin && (
-          <Button className="flex-1" onClick={() => navigate(`/invoices/${id}/payment`)}>
-            Add Payment
-          </Button>
-        )}
+
+        <Button className="flex-1" onClick={() => navigate(`/invoices/${id}/payment`)}>
+          Add Payment
+        </Button>
+
 
         {isAdmin && (
           <Button
