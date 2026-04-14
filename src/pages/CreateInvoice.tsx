@@ -156,19 +156,19 @@ const CreateInvoice: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Outlet selection */}
-        {isAdmin && (
-          <div className="space-y-2">
-            <Label>Outlet</Label>
-            <Select value={selectedOutlet} onValueChange={setSelectedOutlet}>
-              <SelectTrigger className="h-11"><SelectValue placeholder="Select outlet" /></SelectTrigger>
-              <SelectContent>
-                {outlets.map(o => (
-                  <SelectItem key={o.id} value={o.id}>{o.name} ({o.prefix})</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+
+        <div className="space-y-2">
+          <Label>Outlet</Label>
+          <Select value={selectedOutlet} onValueChange={setSelectedOutlet}>
+            <SelectTrigger className="h-11"><SelectValue placeholder="Select outlet" /></SelectTrigger>
+            <SelectContent>
+              {outlets.map(o => (
+                <SelectItem key={o.id} value={o.id}>{o.name} ({o.prefix})</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
 
         {/* Customer selection */}
         <div className="space-y-3 rounded-lg border border-border bg-card p-4">
@@ -346,12 +346,11 @@ const CreateInvoice: React.FC = () => {
             <span className="text-muted-foreground">Total Pieces</span>
             <span className="font-semibold">{totalPieces}</span>
           </div>
-          {isAdmin && (
-            <div className="mt-2 flex justify-between text-sm">
-              <span className="text-muted-foreground">Total Amount</span>
-              <span className="font-heading text-lg font-bold text-primary">₹{totalAmount.toLocaleString('en-IN')}</span>
-            </div>
-          )}
+
+          <div className="mt-2 flex justify-between text-sm">
+            <span className="text-muted-foreground">Total Amount</span>
+            <span className="font-heading text-lg font-bold text-primary">₹{totalAmount.toLocaleString('en-IN')}</span>
+          </div>
         </div>
 
         {/* Submit */}
