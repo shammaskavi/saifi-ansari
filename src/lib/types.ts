@@ -57,6 +57,7 @@ export interface InvoiceItem {
   total: number;
   status: 'Received' | 'In Process' | 'Ready' | 'Delivered';
   created_at: string;
+  notes: string | null;
 }
 
 export interface Payment {

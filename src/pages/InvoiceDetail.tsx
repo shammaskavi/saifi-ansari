@@ -355,6 +355,13 @@ const InvoiceDetail: React.FC = () => {
                   <div>
                     <p className="font-medium">{item.product_type} ({item.product_category})</p>
                     <p className="text-sm text-muted-foreground">{item.service} × {item.quantity}</p>
+
+                    {item.notes && (
+                      <p className="mt-1 text-xs text-muted-foreground italic">
+                        Note: {item.notes}
+                      </p>
+                    )}
+
                     {isAdmin && (
                       <p className="mt-1 text-sm font-semibold">₹{Number(item.total).toLocaleString('en-IN')}</p>
                     )}

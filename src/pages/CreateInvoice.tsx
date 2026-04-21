@@ -18,6 +18,7 @@ interface ItemForm {
   services: string[];
   quantity: number | '';
   rate: number | '';
+  notes: string;
 }
 
 const PRODUCT_TYPES = {
@@ -63,12 +64,15 @@ const CreateInvoice: React.FC = () => {
   const [orderType, setOrderType] = useState<'Normal' | 'Urgent'>('Normal');
   const [notes, setNotes] = useState('');
   const [items, setItems] = useState<ItemForm[]>([
-    { product_category: 'Saree', product_type: '', services: [], quantity: '', rate: '' },
+    { product_category: 'Saree', product_type: '', services: [], quantity: '', rate: '', notes: '' },
   ]);
   const [submitting, setSubmitting] = useState(false);
 
   const addItem = () => {
-    setItems([...items, { product_category: 'Saree', product_type: '', services: [], quantity: '', rate: '' }]);
+    setItems([
+      ...items,
+      { product_category: 'Saree', product_type: '', services: [], quantity: '', rate: '', notes: '' }
+    ]);
   };
 
   const removeItem = (idx: number) => {
@@ -137,6 +141,7 @@ const CreateInvoice: React.FC = () => {
           service: item.services.join(', '),
           quantity: item.quantity,
           rate: isAdmin ? item.rate : 0,
+          notes: item.notes?.trim() || null,
         }))
       );
       if (itemErr) throw itemErr;
@@ -329,6 +334,15 @@ const CreateInvoice: React.FC = () => {
                     className="h-10"
                   />
                 </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Item Notes</Label>
+                <Textarea
+                  value={item.notes}
+                  onChange={e => updateItem(idx, 'notes', e.target.value)}
+                  placeholder="Add any special instructions..."
+                  className="min-h-[60px] text-sm"
+                />
               </div>
             </div>
           ))}
